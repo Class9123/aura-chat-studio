@@ -6,12 +6,21 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import ModelSelector from "./ModelSelector";
 
 interface ChatHeaderProps {
   onClearChat: () => void;
+  selectedModel: string;
+  onSelectModel: (modelId: string) => void;
+  hasMessages: boolean;
 }
 
-const ChatHeader = ({ onClearChat }: ChatHeaderProps) => {
+const ChatHeader = ({
+  onClearChat,
+  selectedModel,
+  onSelectModel,
+  hasMessages,
+}: ChatHeaderProps) => {
   return (
     <motion.header
       initial={{ opacity: 0, y: -10 }}
@@ -19,13 +28,17 @@ const ChatHeader = ({ onClearChat }: ChatHeaderProps) => {
       transition={{ duration: 0.3 }}
       className="flex items-center justify-between px-4 py-3 border-b border-border bg-card/80 backdrop-blur-sm"
     >
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 pl-12 lg:pl-0">
         <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-soft">
           <Sparkles className="w-4 h-4 text-primary-foreground" />
         </div>
-        <div>
+        <div className="flex flex-col">
           <h1 className="font-semibold text-foreground text-sm">AI Assistant</h1>
-          <p className="text-xs text-muted-foreground">Always here to help</p>
+          <ModelSelector
+            selectedModel={selectedModel}
+            onSelectModel={onSelectModel}
+            disabled={hasMessages}
+          />
         </div>
       </div>
 
@@ -36,7 +49,11 @@ const ChatHeader = ({ onClearChat }: ChatHeaderProps) => {
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-48">
-          <DropdownMenuItem onClick={onClearChat} className="text-destructive focus:text-destructive">
+          <DropdownMenuItem
+            onClick={onClearChat}
+            className="text-destructive focus:text-destructive"
+            disabled={!hasMessages}
+          >
             <Trash2 className="w-4 h-4 mr-2" />
             Clear conversation
           </DropdownMenuItem>
