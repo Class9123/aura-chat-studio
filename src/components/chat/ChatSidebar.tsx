@@ -7,8 +7,6 @@ import {
   Pencil,
   Check,
   X,
-  Menu,
-  ChevronLeft,
 } from "lucide-react";
 import { Conversation } from "@/hooks/useChatHistory";
 import {
@@ -106,14 +104,6 @@ const ChatSidebar = ({
 
   return (
     <>
-      {/* Mobile toggle button */}
-      <button
-        onClick={onToggle}
-        className="fixed top-3 left-3 z-50 lg:hidden w-10 h-10 rounded-lg bg-card border border-border shadow-soft flex items-center justify-center"
-      >
-        <Menu className="w-5 h-5 text-foreground" />
-      </button>
-
       {/* Overlay for mobile */}
       <AnimatePresence>
         {isOpen && (
@@ -143,21 +133,13 @@ const ChatSidebar = ({
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-border">
           <h2 className="font-semibold text-foreground">Chats</h2>
-          <div className="flex items-center gap-1">
-            <button
-              onClick={onNewChat}
-              className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-muted transition-colors"
-              title="New chat"
-            >
-              <Plus className="w-4 h-4 text-foreground" />
-            </button>
-            <button
-              onClick={onToggle}
-              className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-muted transition-colors lg:flex hidden"
-            >
-              <ChevronLeft className="w-4 h-4 text-foreground" />
-            </button>
-          </div>
+          <button
+            onClick={onNewChat}
+            className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-muted transition-colors"
+            title="New chat"
+          >
+            <Plus className="w-4 h-4 text-foreground" />
+          </button>
         </div>
 
         {/* Conversation list */}
@@ -280,15 +262,6 @@ const ChatSidebar = ({
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Collapsed sidebar toggle for desktop */}
-      {!isOpen && (
-        <button
-          onClick={onToggle}
-          className="hidden lg:flex fixed left-3 top-3 z-40 w-10 h-10 rounded-lg bg-card border border-border shadow-soft items-center justify-center"
-        >
-          <Menu className="w-5 h-5 text-foreground" />
-        </button>
-      )}
     </>
   );
 };

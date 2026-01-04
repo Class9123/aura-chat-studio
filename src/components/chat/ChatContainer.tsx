@@ -8,6 +8,17 @@ import ChatSidebar from "./ChatSidebar";
 import { useChatHistory, Message } from "@/hooks/useChatHistory";
 import { DEFAULT_MODEL } from "@/lib/models";
 
+interface UploadedFile {
+  id: string;
+  file: File;
+  preview?: string;
+  type: "image" | "document" | "other";
+}
+
+interface MessageWithFiles extends Message {
+  files?: UploadedFile[];
+}
+
 const aiResponses = [
   "That's a great question! Let me think about that for a moment...\n\nBased on my understanding, I'd be happy to help you with this. Could you provide a bit more context so I can give you the most relevant answer?",
   "Interesting! Here's what I can tell you:\n\nThis is a complex topic with many facets. The key points to consider are the context, the specific requirements, and the desired outcome. Would you like me to elaborate on any particular aspect?",
@@ -31,6 +42,7 @@ const ChatContainer = () => {
   const [isTyping, setIsTyping] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [selectedModel, setSelectedModel] = useState(DEFAULT_MODEL);
+  const [localMessages, setLocalMessages] = useState<MessageWithFiles[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -39,16 +51,19 @@ const ChatContainer = () => {
 
   useEffect(() => {
     scrollToBottom();
-  }, [activeConversation?.messages, isTyping]);
+  }, [localMessages, isTyping]);
 
-  // Sync selected model with active conversation
+  // Sync local messages with active conversation
   useEffect(() => {
     if (activeConversation) {
+      setLocalMessages(activeConversation.messages as MessageWithFiles[]);
       setSelectedModel(activeConversation.model);
+    } else {
+      setLocalMessages([]);
     }
   }, [activeConversation]);
 
-  const handleSendMessage = async (content: string) => {
+  const handleSendMessage = async (content: string, files?: UploadedFile[]) => {
     let currentConversationId = activeConversationId;
 
     // Create new conversation if none exists
@@ -57,12 +72,15 @@ const ChatContainer = () => {
       currentConversationId = newConversation.id;
     }
 
-    const userMessage: Message = {
+    const userMessage: MessageWithFiles = {
       id: Date.now().toString(),
       content,
       role: "user",
+      files,
     };
 
+    // Update local state immediately for responsiveness
+    setLocalMessages((prev) => [...prev, userMessage]);
     addMessage(currentConversationId, userMessage);
     setIsTyping(true);
 
@@ -71,13 +89,16 @@ const ChatContainer = () => {
       setTimeout(resolve, 1500 + Math.random() * 1000)
     );
 
-    const aiResponse: Message = {
+    const aiResponse: MessageWithFiles = {
       id: (Date.now() + 1).toString(),
-      content: aiResponses[Math.floor(Math.random() * aiResponses.length)],
+      content: files?.length
+        ? `I can see you've shared ${files.length} file${files.length > 1 ? "s" : ""}. ${aiResponses[Math.floor(Math.random() * aiResponses.length)]}`
+        : aiResponses[Math.floor(Math.random() * aiResponses.length)],
       role: "assistant",
     };
 
     setIsTyping(false);
+    setLocalMessages((prev) => [...prev, aiResponse]);
     addMessage(currentConversationId, aiResponse);
   };
 
@@ -88,6 +109,7 @@ const ChatContainer = () => {
   const handleClearChat = () => {
     if (activeConversationId) {
       updateConversation(activeConversationId, { messages: [], title: "New Chat" });
+      setLocalMessages([]);
     }
     setIsTyping(false);
   };
@@ -98,8 +120,6 @@ const ChatContainer = () => {
       updateConversation(activeConversationId, { model: modelId });
     }
   };
-
-  const messages = activeConversation?.messages || [];
 
   return (
     <div className="flex h-screen bg-background">
@@ -119,20 +139,23 @@ const ChatContainer = () => {
           onClearChat={handleClearChat}
           selectedModel={selectedModel}
           onSelectModel={handleModelChange}
-          hasMessages={messages.length > 0}
+          hasMessages={localMessages.length > 0}
+          sidebarOpen={sidebarOpen}
+          onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
         />
 
         <div className="flex-1 overflow-y-auto chat-scrollbar">
-          {messages.length === 0 && !isTyping ? (
-            <WelcomeScreen onSuggestionClick={handleSendMessage} />
+          {localMessages.length === 0 && !isTyping ? (
+            <WelcomeScreen onSuggestionClick={(msg) => handleSendMessage(msg)} />
           ) : (
             <div className="max-w-3xl mx-auto px-4 py-6 space-y-6">
               <AnimatePresence mode="popLayout">
-                {messages.map((message) => (
+                {localMessages.map((message) => (
                   <ChatMessage
                     key={message.id}
                     content={message.content}
                     role={message.role}
+                    files={message.files}
                   />
                 ))}
               </AnimatePresence>
