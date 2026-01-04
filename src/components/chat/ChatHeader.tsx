@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Sparkles, MoreHorizontal, Trash2 } from "lucide-react";
+import { Sparkles, MoreHorizontal, Trash2, PanelLeftClose, PanelLeft } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,6 +13,8 @@ interface ChatHeaderProps {
   selectedModel: string;
   onSelectModel: (modelId: string) => void;
   hasMessages: boolean;
+  sidebarOpen: boolean;
+  onToggleSidebar: () => void;
 }
 
 const ChatHeader = ({
@@ -20,6 +22,8 @@ const ChatHeader = ({
   selectedModel,
   onSelectModel,
   hasMessages,
+  sidebarOpen,
+  onToggleSidebar,
 }: ChatHeaderProps) => {
   return (
     <motion.header
@@ -28,12 +32,32 @@ const ChatHeader = ({
       transition={{ duration: 0.3 }}
       className="flex items-center justify-between px-4 py-3 border-b border-border bg-card/80 backdrop-blur-sm"
     >
-      <div className="flex items-center gap-3 pl-12 lg:pl-0">
-        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-soft">
+      <div className="flex items-center gap-3">
+        {/* Sidebar toggle */}
+        <button
+          onClick={onToggleSidebar}
+          className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-muted transition-colors"
+          title={sidebarOpen ? "Close sidebar" : "Open sidebar"}
+        >
+          {sidebarOpen ? (
+            <PanelLeftClose className="w-5 h-5 text-muted-foreground" />
+          ) : (
+            <PanelLeft className="w-5 h-5 text-muted-foreground" />
+          )}
+        </button>
+
+        <div className="h-8 w-px bg-border hidden sm:block" />
+
+        <div className="hidden sm:flex w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-primary/70 items-center justify-center shadow-soft flex-shrink-0">
           <Sparkles className="w-4 h-4 text-primary-foreground" />
         </div>
-        <div className="flex flex-col">
-          <h1 className="font-semibold text-foreground text-sm">AI Assistant</h1>
+
+        <div className="flex items-center gap-3">
+          <div className="hidden sm:block">
+            <h1 className="font-semibold text-foreground text-sm leading-tight">AI Assistant</h1>
+            <p className="text-xs text-muted-foreground">Select a model to start</p>
+          </div>
+          
           <ModelSelector
             selectedModel={selectedModel}
             onSelectModel={onSelectModel}
