@@ -15,6 +15,7 @@ interface ChatHeaderProps {
   hasMessages: boolean;
   sidebarOpen: boolean;
   onToggleSidebar: () => void;
+  chatTitle?: string;
 }
 
 const ChatHeader = ({
@@ -24,6 +25,7 @@ const ChatHeader = ({
   hasMessages,
   sidebarOpen,
   onToggleSidebar,
+  chatTitle,
 }: ChatHeaderProps) => {
   return (
     <motion.header
@@ -53,9 +55,13 @@ const ChatHeader = ({
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="hidden sm:block">
-            <h1 className="font-semibold text-foreground text-sm leading-tight">AI Assistant</h1>
-            <p className="text-xs text-muted-foreground">Select a model to start</p>
+          <div className="hidden sm:block min-w-0">
+            <h1 className="font-semibold text-foreground text-sm leading-tight truncate max-w-[200px]">
+              {chatTitle || "New Chat"}
+            </h1>
+            <p className="text-xs text-muted-foreground">
+              {hasMessages ? "Chat in progress" : "Select a model to start"}
+            </p>
           </div>
           
           <ModelSelector
