@@ -142,6 +142,7 @@ const ChatContainer = () => {
           hasMessages={localMessages.length > 0}
           sidebarOpen={sidebarOpen}
           onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
+          chatTitle={activeConversation?.title}
         />
 
         <div className="flex-1 overflow-y-auto chat-scrollbar">
