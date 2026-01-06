@@ -1,12 +1,9 @@
-name: Publish GitHub Pages
+name: Deploy React App to GitHub Pages
 
 on:
-  workflow_dispatch:
-
-permissions:
-  contents: read
-  pages: write
-  id-token: write
+  push:
+    branches:
+      - main # Triggers the workflow on pushes to the main branch
 
 jobs:
   build-and-deploy:
@@ -14,15 +11,20 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        
-      - name: Install dependencies
-        run: npm install 
 
-      - name: Build
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20' # Use your desired Node version
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build application
         run: npm run build
 
       - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
+        uses: JamesIves/github-pages-deploy-action@v4
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist
+          branch: gh-pages # The branch the action should deploy to
+          folder: dist # The folder to deploy (use 'dist' for Vite)
