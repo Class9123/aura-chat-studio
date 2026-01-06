@@ -42,7 +42,7 @@ const ChatInput = ({ onSend, disabled }: ChatInputProps) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = e => {
     e.preventDefault();
     if ((message.trim() || files.length > 0) && !disabled) {
       onSend(message.trim(), files.length > 0 ? files : undefined);
@@ -51,22 +51,22 @@ const ChatInput = ({ onSend, disabled }: ChatInputProps) => {
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  const handleKeyDown = e => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSubmit(e);
     }
   };
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = e => {
     const selectedFiles = e.target.files;
     if (!selectedFiles) return;
 
-    const newFiles: UploadedFile[] = Array.from(selectedFiles).map((file) => {
+    const newFiles: UploadedFile[] = Array.from(selectedFiles).map(file => {
       const uploadedFile: UploadedFile = {
         id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         file,
-        type: getFileType(file),
+        type: getFileType(file)
       };
 
       // Create preview for images
@@ -77,8 +77,8 @@ const ChatInput = ({ onSend, disabled }: ChatInputProps) => {
       return uploadedFile;
     });
 
-    setFiles((prev) => [...prev, ...newFiles].slice(0, 10)); // Max 10 files
-    
+    setFiles(prev => [...prev, ...newFiles].slice(0, 10)); // Max 10 files
+
     // Reset input
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
@@ -86,12 +86,12 @@ const ChatInput = ({ onSend, disabled }: ChatInputProps) => {
   };
 
   const removeFile = (id: string) => {
-    setFiles((prev) => {
-      const file = prev.find((f) => f.id === id);
+    setFiles(prev => {
+      const file = prev.find(f => f.id === id);
       if (file?.preview) {
         URL.revokeObjectURL(file.preview);
       }
-      return prev.filter((f) => f.id !== id);
+      return prev.filter(f => f.id !== id);
     });
   };
 
@@ -108,7 +108,7 @@ const ChatInput = ({ onSend, disabled }: ChatInputProps) => {
   // Cleanup previews on unmount
   useEffect(() => {
     return () => {
-      files.forEach((f) => {
+      files.forEach(f => {
         if (f.preview) URL.revokeObjectURL(f.preview);
       });
     };
@@ -134,7 +134,7 @@ const ChatInput = ({ onSend, disabled }: ChatInputProps) => {
               exit={{ opacity: 0, height: 0 }}
               className="flex flex-wrap gap-2 px-2 pt-2"
             >
-              {files.map((uploadedFile) => {
+              {files.map(uploadedFile => {
                 const FileIcon = getFileIcon(uploadedFile.type);
 
                 return (
@@ -157,7 +157,10 @@ const ChatInput = ({ onSend, disabled }: ChatInputProps) => {
                       <div className="w-16 h-16 rounded-lg border border-border bg-muted flex flex-col items-center justify-center gap-1 p-1">
                         <FileIcon className="w-5 h-5 text-muted-foreground" />
                         <span className="text-[10px] text-muted-foreground text-center truncate w-full px-1">
-                          {uploadedFile.file.name.split(".").pop()?.toUpperCase()}
+                          {uploadedFile.file.name
+                            .split(".")
+                            .pop()
+                            ?.toUpperCase()}
                         </span>
                       </div>
                     )}
@@ -190,7 +193,7 @@ const ChatInput = ({ onSend, disabled }: ChatInputProps) => {
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            disabled={disabled || files.length >= 10}
+            disabled={files.length >= 10}
             className="flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             title="Attach files"
           >
@@ -200,10 +203,9 @@ const ChatInput = ({ onSend, disabled }: ChatInputProps) => {
           <textarea
             ref={textareaRef}
             value={message}
-            onChange={(e) => setMessage(e.target.value)}
+            onChange={e => setMessage(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Ask me anything..."
-            disabled={disabled}
             rows={1}
             className="flex-1 bg-transparent text-foreground placeholder:text-muted-foreground text-sm resize-none focus:outline-none py-2.5 min-h-[40px] max-h-[120px]"
           />

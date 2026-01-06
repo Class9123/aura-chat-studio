@@ -36,19 +36,19 @@ const ChatMessage = ({ content, role, isTyping, files }: ChatMessageProps) => {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, ease: "easeOut" }}
-      className={`flex gap-3 ${isUser ? "flex-row-reverse" : "flex-row"}`}
+      className={`flex gap-3 ${isUser ? "flex-col-reverse" : "flex-col"}`}
     >
       <div
         className={`flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center shadow-soft ${
           isUser
-            ? "bg-chat-user text-chat-user-foreground"
+            ? "w-0 h-0"
             : "bg-secondary text-secondary-foreground"
         }`}
       >
-        {isUser ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
+        {!isUser && <Bot className="w-4 h-4" />}
       </div>
 
-      <div className={`max-w-[75%] space-y-2 ${isUser ? "items-end" : "items-start"} flex flex-col`}>
+      <div className={`max-w-[98%] space-y-2 ${isUser ? "items-end" : "items-start"} flex flex-col`}>
         {/* File attachments */}
         {files && files.length > 0 && (
           <div className={`flex flex-wrap gap-2 ${isUser ? "justify-end" : "justify-start"}`}>

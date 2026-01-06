@@ -1,10 +1,16 @@
 import { motion } from "framer-motion";
-import { Sparkles, MoreHorizontal, Trash2, PanelLeftClose, PanelLeft } from "lucide-react";
+import {
+  Sparkles,
+  MoreHorizontal,
+  Trash2,
+  PanelLeftClose,
+  PanelLeft
+} from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger,
+  DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 import ModelSelector from "./ModelSelector";
 
@@ -25,7 +31,7 @@ const ChatHeader = ({
   hasMessages,
   sidebarOpen,
   onToggleSidebar,
-  chatTitle,
+  chatTitle
 }: ChatHeaderProps) => {
   return (
     <motion.header
@@ -63,7 +69,7 @@ const ChatHeader = ({
               {hasMessages ? "Chat in progress" : "Select a model to start"}
             </p>
           </div>
-          
+
           <ModelSelector
             selectedModel={selectedModel}
             onSelectModel={onSelectModel}

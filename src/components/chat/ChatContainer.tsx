@@ -6,8 +6,44 @@ import ChatInput from "./ChatInput";
 import WelcomeScreen from "./WelcomeScreen";
 import ChatSidebar from "./ChatSidebar";
 import { useChatHistory, Message } from "@/hooks/useChatHistory";
-import { DEFAULT_MODEL } from "@/lib/models";
+/*
+puter.ai.chat(prompt)
+puter.ai.chat(prompt, options = {})
+puter.ai.chat(prompt, testMode = false, options = {})
+puter.ai.chat(prompt, image, testMode = false, options = {})
+puter.ai.chat(prompt, [imageURLArray], testMode = false, options = {})
+puter.ai.chat([messages], testMode = false, options = {})
 
+[
+  {
+    role: "user",
+    content: [
+      {
+        type: "file",
+        puter_path: "~/Desktop/document.pdf",
+      },
+      {
+        type: "text",
+        text: "Please summarize this document",
+      },
+    ],
+  },
+];
+
+
+[
+  {
+    role: "system",
+    content: "Hello, how are you?",
+  },
+  {
+    role: "user",
+    content: "I am doing well, how are you?",
+  },
+];
+
+
+*/
 interface UploadedFile {
   id: string;
   file: File;
@@ -19,13 +55,6 @@ interface MessageWithFiles extends Message {
   files?: UploadedFile[];
 }
 
-const aiResponses = [
-  "That's a great question! Let me think about that for a moment...\n\nBased on my understanding, I'd be happy to help you with this. Could you provide a bit more context so I can give you the most relevant answer?",
-  "Interesting! Here's what I can tell you:\n\nThis is a complex topic with many facets. The key points to consider are the context, the specific requirements, and the desired outcome. Would you like me to elaborate on any particular aspect?",
-  "I'd be glad to help with that!\n\nTo give you the best possible answer, I'll break this down into manageable parts. First, let's understand the core concept, then we can explore the practical applications.",
-  "Great question! Let me explain:\n\nThe answer depends on several factors, but generally speaking, the most effective approach involves careful planning and consideration of all variables involved.",
-];
-
 const ChatContainer = () => {
   const {
     conversations,
@@ -36,12 +65,12 @@ const ChatContainer = () => {
     renameConversation,
     deleteConversation,
     selectConversation,
-    updateConversation,
+    updateConversation
   } = useChatHistory();
 
   const [isTyping, setIsTyping] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [selectedModel, setSelectedModel] = useState(DEFAULT_MODEL);
+  const [selectedModel, setSelectedModel] = useState(null);
   const [localMessages, setLocalMessages] = useState<MessageWithFiles[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -72,43 +101,42 @@ const ChatContainer = () => {
       currentConversationId = newConversation.id;
     }
 
-    const userMessage: MessageWithFiles = {
-      id: Date.now().toString(),
+    const userMessage = {
       content,
-      role: "user",
-      files,
+      role: "user"
     };
 
     // Update local state immediately for responsiveness
-    setLocalMessages((prev) => [...prev, userMessage]);
+    const msgs = [...localMessages, userMessage];
+    setLocalMessages(msgs);
     addMessage(currentConversationId, userMessage);
     setIsTyping(true);
+    console.log(selectedModel)
+    const reply = await puter.ai.chat(msgs, files, false, {
+      model: selectedModel
+    });
 
-    // Simulate AI response delay
-    await new Promise((resolve) =>
-      setTimeout(resolve, 1500 + Math.random() * 1000)
-    );
-
-    const aiResponse: MessageWithFiles = {
-      id: (Date.now() + 1).toString(),
-      content: files?.length
-        ? `I can see you've shared ${files.length} file${files.length > 1 ? "s" : ""}. ${aiResponses[Math.floor(Math.random() * aiResponses.length)]}`
-        : aiResponses[Math.floor(Math.random() * aiResponses.length)],
-      role: "assistant",
+    const aiResponse = {
+     content: reply.toString(),
+      role: "system"
     };
 
     setIsTyping(false);
-    setLocalMessages((prev) => [...prev, aiResponse]);
+    setLocalMessages(prev => [...prev, aiResponse]);
     addMessage(currentConversationId, aiResponse);
   };
 
   const handleNewChat = () => {
     createConversation(selectedModel);
+    setIsTyping(false);
   };
 
   const handleClearChat = () => {
     if (activeConversationId) {
-      updateConversation(activeConversationId, { messages: [], title: "New Chat" });
+      updateConversation(activeConversationId, {
+        messages: [],
+        title: "New Chat"
+      });
       setLocalMessages([]);
     }
     setIsTyping(false);
@@ -147,13 +175,13 @@ const ChatContainer = () => {
 
         <div className="flex-1 overflow-y-auto chat-scrollbar">
           {localMessages.length === 0 && !isTyping ? (
-            <WelcomeScreen onSuggestionClick={(msg) => handleSendMessage(msg)} />
+            <WelcomeScreen onSuggestionClick={msg => handleSendMessage(msg)} />
           ) : (
             <div className="max-w-3xl mx-auto px-4 py-6 space-y-6">
               <AnimatePresence mode="popLayout">
-                {localMessages.map((message) => (
+                {localMessages.map((message,index) => (
                   <ChatMessage
-                    key={message.id}
+                    key={index}
                     content={message.content}
                     role={message.role}
                     files={message.files}
