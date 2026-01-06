@@ -14,15 +14,10 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Check for package.json
-        id: check
-        run: |
-          if [ -f package.json ]; then echo "has_package=true" >> $GITHUB_OUTPUT; else echo "has_package=false" >> $GITHUB_OUTPUT; fi
-
+        
       - name: Install dependencies
         if: steps.check.outputs.has_package == 'true'
-        run: npm ci
+        run: npm install 
 
       - name: Build
         if: steps.check.outputs.has_package == 'true'
@@ -32,4 +27,4 @@ jobs:
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./public
+          publish_dir: ./dist
