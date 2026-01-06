@@ -5,7 +5,7 @@ import { componentTagger } from "lovable-tagger";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
- base:"/aura-chat-studio",
+ base:"https://class9123.github.io/aura-chat-studio/",
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
